@@ -2,6 +2,8 @@ import { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 const schedule = {
   title: "CS Courses for 2023-2024",
   "courses": {
@@ -43,8 +45,12 @@ const Banner = (props) =>(
 const CourseList = (props) => {
   Object.entries(props.courses).map(([_, info]) => console.log([info.term, info.number, info.title]))
 return (
-  <div>
-  {Object.entries(props.courses).map(([_, info]) => <p>{info.term} CS {info.number}: {info.title}</p>)}
+  <div className="course-list justify-content-center">
+  {Object.entries(props.courses).map(([_, info]) => (
+  <div className="card m-1 p-2">
+    <p><h5>{info.term}</h5> <strong>CS {info.number}</strong>: {info.title}</p>
+    <div className="card-footer mt-auto"><p><small><em>{info.meets}</em></small></p></div>
+    </div>))}
   </div>
 )
 }
@@ -52,7 +58,8 @@ return (
 const App = () => {
   const [count, setCount] = useState(0);
   return (
-    <div className="App">
+    <div className="App container">
+
       <Banner name={schedule.title} />
       <CourseList courses={schedule.courses} />
     </div>
