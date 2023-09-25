@@ -45,3 +45,8 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fill, 14rem);
 }
+
+.selected {
+  background-color:lemonchiffon;
+  color: green;
+}

@@ -5,36 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// // const schedule = {
-// //   title: "CS Courses for 2023-2024",
-// //   "courses": {
-// //     "F101" : {
-// //       "term": "Fall",
-// //       "number": "101",
-// //       "meets" : "MWF 11:00-11:50",
-// //       "title" : "Computer Science: Concepts, Philosophy, and Connections"
-// //     },
-// //     "F110" : {
-// //       "term": "Fall",
-// //       "number": "110",
-// //       "meets" : "MWF 10:00-10:50",
-// //       "title" : "Intro Programming for non-majors"
-// //     },
-// //     "S313" : {
-// //       "term": "Spring",
-// //       "number": "313",
-// //       "meets" : "TuTh 15:30-16:50",
-// //       "title" : "Tangible Interaction Design and Learning"
-// //     },
-// //     "S314" : {
-// //       "term": "Spring",
-// //       "number": "314",
-// //       "meets" : "TuTh 9:30-10:50",
-// //       "title" : "Tech & Human Interaction"
-// //     }
-// //   }
-// // }
-
 const Banner = (props) =>(
   // <header className="App-header">
   <header>
@@ -45,8 +15,8 @@ const Banner = (props) =>(
 const CourseList = (props) => {
 return (
   <div className="course-list justify-content-center">
-  {props.courses.map(course => (
-  <div className="card m-1 p-2">
+  {props.courses.map((course, id) => (
+  <div className="card m-1 p-2" style={props.selected.includes(id) ? {backgroundColor: "#BDEEBE"} : {backgroundColor:"white"}} onClick={() => props.toggleSelected(id)}>
     <p><h5>{course.term}</h5> <strong>CS {course.number}</strong>: {course.title}</p>
     <div className="card-footer mt-auto"><p><small><em>{course.meets}</em></small></p></div>
     </div>))}
@@ -54,7 +24,7 @@ return (
 )
 }
 
-const QueryCourseList = () => {
+const QueryCourseList = (props) => {
   const [data, isLoading, error] = useJsonQuery('https://courses.cs.northwestern.edu/394/guides/data/cs-courses.php');
 
   if (error) return <h1>Error loading user data: {`${error}`}</h1>;
@@ -63,19 +33,24 @@ const QueryCourseList = () => {
 
   return <div> 
     <Banner name={data.title} />
-    <CourseList courses={Object.values(data.courses)} />
+    <CourseList courses={Object.values(data.courses)} selected={props.selected} toggleSelected={props.toggleSelected} />
     </div>;
 }
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [count, setCount] = useState(0);
-  // console.log(schedule);
+  const [selected, setSelected] = useState([]);
+  const toggleSelected = (item) => setSelected(
+    selected.includes(item)
+    ? selected.filter(x => x !== item)
+    : [...selected, item]
+  );
   return (
     <QueryClientProvider client={queryClient}>
     <div className="App container">
-    <QueryCourseList />
+    <QueryCourseList selected={selected} toggleSelected={toggleSelected}/>
+    {/* <QueryCourseList /> */}
     </div>
     </QueryClientProvider>
   );
