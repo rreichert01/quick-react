@@ -24,6 +24,16 @@ return (
 )
 }
 
+const TermButton = (props) => {
+  return (<div className='col-4'>
+  <input type="radio" id={props.term} className="btn-check" checked={props.term === props.selection} autoComplete="off"
+    onChange={() => props.setSelection(props.term)} />
+  <label className="btn btn-success mb-1 p-2" htmlFor={props.term}>
+  { props.term }
+  </label>
+</div>)
+};
+
 const QueryCourseList = (props) => {
   const [data, isLoading, error] = useJsonQuery('https://courses.cs.northwestern.edu/394/guides/data/cs-courses.php');
 
@@ -33,7 +43,10 @@ const QueryCourseList = (props) => {
 
   return <div> 
     <Banner name={data.title} />
-    <CourseList courses={Object.values(data.courses)} selected={props.selected} toggleSelected={props.toggleSelected} />
+    <div style={{"display": "flex"}}>
+    {["Fall", "Winter", "Spring"].map(term => (<TermButton term={term} selection={props.selection} setSelection={props.setSelection} />))}
+    </div>
+    <CourseList courses={Object.values(data.courses).filter(elem => elem.term == props.selection)} selected={props.selected} toggleSelected={props.toggleSelected} />
     </div>;
 }
 
@@ -41,6 +54,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [selected, setSelected] = useState([]);
+  const [selection, setSelection] = useState("Fall");
   const toggleSelected = (item) => setSelected(
     selected.includes(item)
     ? selected.filter(x => x !== item)
@@ -49,7 +63,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
     <div className="App container">
-    <QueryCourseList selected={selected} toggleSelected={toggleSelected}/>
+    <QueryCourseList selected={selected} toggleSelected={toggleSelected} selection={selection} setSelection={setSelection}/>
     {/* <QueryCourseList /> */}
     </div>
     </QueryClientProvider>
