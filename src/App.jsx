@@ -15,7 +15,7 @@ const Banner = (props) =>(
 const CourseList = (props) => {
 return (
   <div className="course-list justify-content-center">
-  {props.courses.map((course, id) => (
+  {props.courses.map((course, id) => course.term != props.termSelection ? null : (
   <div className="card m-1 p-2" style={props.selected.includes(id) ? {backgroundColor: "#BDEEBE"} : {backgroundColor:"white"}} onClick={() => props.toggleSelected(id)}>
     <p><h5>{course.term}</h5> <strong>CS {course.number}</strong>: {course.title}</p>
     <div className="card-footer mt-auto"><p><small><em>{course.meets}</em></small></p></div>
@@ -46,7 +46,7 @@ const QueryCourseList = (props) => {
     <div style={{"display": "flex"}}>
     {["Fall", "Winter", "Spring"].map(term => (<TermButton term={term} selection={props.selection} setSelection={props.setSelection} />))}
     </div>
-    <CourseList courses={Object.values(data.courses).filter(elem => elem.term == props.selection)} selected={props.selected} toggleSelected={props.toggleSelected} />
+    <CourseList courses={Object.values(data.courses)} selected={props.selected} toggleSelected={props.toggleSelected} termSelection={props.selection}/>
     </div>;
 }
 
