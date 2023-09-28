@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Banner = (props) =>(
-  // <header className="App-header">
   <header>
   <h1>{props.name}</h1>
 </header>
@@ -34,6 +33,42 @@ const TermButton = (props) => {
 </div>)
 };
 
+
+const Modal = ({ children, open, close }) => (
+  <div
+    className={` modal ${open ? 'modal-show' : ''}`}
+    tabIndex="-1"
+    role="dialog"
+    onClick={(evt) => { if (evt.target === evt.currentTarget) close(); }}
+  >
+    <div className="modal-dialog" role="document">
+      <div className="modal-content">
+        <div className="modal-header">
+          <button type="button" className="btn-close" aria-label="Close"
+            onClick={close}
+          />
+        </div>
+        <div className="modal-body">
+          {children}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const SelectedCourses = ({selected, courses}) => (
+  <div className="cart">
+    {
+      selected.length === 0
+      ? (<div><h2>No Courses are Selected</h2> <p>Click on a course to add it to the list of selected courses</p></div>)
+      : selected.map(courseId => (
+          <p><strong>{courses[courseId].number}</strong> {courses[courseId].title}: <i>{courses[courseId].meets}</i></p>
+        ))
+    }
+  </div>
+);
+
+
 const QueryCourseList = (props) => {
   const [data, isLoading, error] = useJsonQuery('https://courses.cs.northwestern.edu/394/guides/data/cs-courses.php');
 
@@ -46,15 +81,26 @@ const QueryCourseList = (props) => {
     <div style={{"display": "flex"}}>
     {["Fall", "Winter", "Spring"].map(term => (<TermButton term={term} selection={props.selection} setSelection={props.setSelection} />))}
     </div>
+       {/* Copy - Paste */}
+       <button className="btn btn-outline-dark col-3" onClick={props.openModal}><i className="bi bi-cart4">Show Selected Courses</i></button>
+      <Modal open={props.open} close={props.closeModal}>
+      <SelectedCourses selected={props.selected} courses={Object.values(data.courses)} />
+      </Modal>
+      {/* Copy - Paste */}
     <CourseList courses={Object.values(data.courses)} selected={props.selected} toggleSelected={props.toggleSelected} termSelection={props.selection}/>
     </div>;
 }
 
 const queryClient = new QueryClient();
 
+
 const App = () => {
   const [selected, setSelected] = useState([]);
   const [selection, setSelection] = useState("Fall");
+  const [open, setOpen] = useState(false);
+
+  const openModal = () => {console.log("open window"); setOpen(true)};
+  const closeModal = () => {console.log("close window"); setOpen(false)};
   const toggleSelected = (item) => setSelected(
     selected.includes(item)
     ? selected.filter(x => x !== item)
@@ -63,7 +109,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
     <div className="App container">
-    <QueryCourseList selected={selected} toggleSelected={toggleSelected} selection={selection} setSelection={setSelection}/>
+    <QueryCourseList open={open} openModal={openModal} closeModal={closeModal} selected={selected} toggleSelected={toggleSelected} selection={selection} setSelection={setSelection}/>
     {/* <QueryCourseList /> */}
     </div>
     </QueryClientProvider>
