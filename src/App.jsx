@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import {useJsonQuery} from './utilities/fetch';
+import {findConflict} from './utilities/findConflict';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
