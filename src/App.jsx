@@ -12,11 +12,26 @@ const Banner = (props) =>(
 </header>
 );
 
+const boolConflict = (selected, courses, course, id) => selected.map((elem) => selected.includes(id) ? false : findConflict(courses[elem], course)).reduce((acc, cur) => acc || cur, false)
+
+const displayConflict = (selected, courses, id, course) => {
+  
+  if (selected.includes(id)) {
+    return {backgroundColor: "#BDEEBE"}
+  } else if(boolConflict(selected, courses, course, id)){
+    return {backgroundColor: "#f2a0a0"}
+  }
+  return {backgroundColor:"white"}
+}
+
+
 const CourseList = (props) => {
 return (
   <div className="course-list justify-content-center">
   {props.courses.map((course, id) => course.term != props.termSelection ? null : (
-  <div className="card m-1 p-2" style={props.selected.includes(id) ? {backgroundColor: "#BDEEBE"} : {backgroundColor:"white"}} onClick={() => props.toggleSelected(id)}>
+  <div className="card m-1 p-2" style={displayConflict(props.selected, props.courses, id, course)} onClick={() => boolConflict(props.selected, props.courses, course, id) ? null: props.toggleSelected(id)}>
+    {/* // <div className="card m-1 p-2" style={displayConflict(props.selected, props.courses, id, course)} onClick={() => console.log(boolConflict(props.selected, props.courses, course))}> */}
+    {/* <p><h5>{course.term}</h5> <strong>CS {course.number} {props.selected.map((elem) => findConflict(course, elem)).reduce((acc, cur) => acc || cur, false)}</strong>: {course.title}</p> */}
     <p><h5>{course.term}</h5> <strong>CS {course.number}</strong>: {course.title}</p>
     <div className="card-footer mt-auto"><p><small><em>{course.meets}</em></small></p></div>
     </div>))}
