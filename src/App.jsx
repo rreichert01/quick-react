@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import './App.css';
 import { useJsonQuery } from './utilities/fetch';
-import { findConflict } from './utilities/findConflict';
+import { findConflict, timeToNum } from './utilities/findConflict';
+import { useFormData } from './utilities/validateForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, useParams, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -97,27 +98,53 @@ const QueryCourseList = (props) => {
   </div>;
 }
 
+const validateUserData = (key, val) => {
+  switch (key) {
+    case 'title':
+      return /(^\w\w)/.test(val) ? '' : 'must be least two characters';
+    case 'meets':
+      const time_regex = /([01]?[0-9]|2[0-3]):[0-5][0-9]/;
+      let [days, time] = val.split(" ");
+      [days, time] = [days.split(/(?=[A-Z])/), time.split("-")];
+      let valid = time.map(elem => time_regex.test(elem)).reduce((acc, cur) => acc || cur, false)
+      valid &= (timeToNum(time[1]) - timeToNum(time[0])) > 0;
+      valid &= days.map(day => ["M", "Tu", "W", "Th", "F"].includes(day)).reduce((acc, cur) => acc || cur, false)
+      return valid ? '' :  "must contain days and a valid start-end, e.g., MWF 12:00-13:20";
+    default: return '';
+  }
+};
+
+const InputField = ({ name, text, state, change }) => {
+  return (<div className="mb-3">
+    {/* <label htmlFor={name} className="form-label">{text}</label>
+    <input className="form-control" id={name} name={name} 
+      defaultValue={state.values?.[name]} onChange={change} /> */}
+    <label htmlFor={name} className="col-sm-2 col-form-label">{text}</label>
+    <input className="form-control" name={name} id={name} defaultValue={state.values?.[name]} onChange={change} />
+    <div className="invalid-feedback">{state.errors?.[name]}</div>
+  </div>
+)};
+
 const EditForm = (props) => {
-  console.log
   let { id } = useParams();
-  console.log(id, typeof id)
   let course = props.courses[parseInt(id)]
-  console.log(course)
+  const [state, change] = useFormData(validateUserData, course);
+  const submit = (evt) => {
+    evt.preventDefault();
+    if (!state.errors) {
+      console.log("Not implemented")
+      // update(state.values);
+    }
+  };
   return <div className="border border-success rounded">
-    <form onSubmit={() => console.log("Not implemented")} className="p-4 form-inline">
+    <form onSubmit={submit} noValidate className={`p-4 form-inline ${state.errors ? 'was-validated' : ""}`}>
       <h3>Edit Course</h3>
-      {/* <div class="form-group">
-      <label htmlFor='term' className="col-sm-2 col-form-label">Course Term</label>
-      <input className="form-control" name='term' defaultValue={course.term} />
-      </div>
-      <label htmlFor='number' className="form-label">Course Number</label>
-      <input className="form-control" name='number' defaultValue={course.number} /> */}
-
-      <label htmlFor='title' className="col-sm-2 col-form-label">Course Title</label>
-      <input className="form-control" name='title' defaultValue={course.title} />
-
-      <label htmlFor='meets' className="col-sm-2 col-form-label">Meeting Time</label>
-      <input className="form-control" name='meets' defaultValue={course.meets} />
+      <InputField name="title" text="Course Title" state={state} change={change} />
+      {/* <label htmlFor='title' className="col-sm-2 col-form-label">Course Title</label>
+      <input className="form-control" name='title' defaultValue={course.title} /> */}
+      <InputField name="meets" text="Meeting Time" state={state} change={change} />
+      {/* <label htmlFor='meets' className="col-sm-2 col-form-label">Meeting Time</label>
+      <input className="form-control" name='meets' defaultValue={course.meets} /> */}
 
       <Link to='/'>
         <button type="button" className="btn-outline-danger btn">Cancel Edit</button>

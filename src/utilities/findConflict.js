@@ -1,4 +1,4 @@
-const timeToNum = (time) => time.split(":").reduce((acc, cur) => 
+export const timeToNum = (time) => time.split(":").reduce((acc, cur) => 
                                                                 acc == 0 ? 
                                                                 parseInt(cur) :
                                                                  acc + (parseInt(cur)/60), 0); 
