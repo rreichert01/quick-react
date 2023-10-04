@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import './App.css';
 import { useJsonQuery } from './utilities/fetch';
-import { useDbData } from './utilities/firebase';
+import { useDbData, useDbUpdate } from './utilities/firebase';
 import { findConflict, timeToNum } from './utilities/findConflict';
 import { useFormData } from './utilities/validateForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, useParams, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Banner = (props) => (
@@ -127,14 +127,22 @@ const InputField = ({ name, text, state, change }) => {
 )};
 
 const EditForm = (props) => {
+  
   let { id } = useParams();
   let course = props.courses[parseInt(id)]
   const [state, change] = useFormData(validateUserData, course);
+  let path = `/courses/${course.term[0]}${course.number}`
+  const [updateData, result] = useDbUpdate(path);
+  console.log(path)
+  const navigate = useNavigate();
   const submit = (evt) => {
     evt.preventDefault();
     if (!state.errors) {
-      console.log("Not implemented")
-      // update(state.values);
+      updateData({
+        title: state.values.title,
+        meets: state.values.meets
+      })
+      navigate('/');
     }
   };
   return <div className="border border-success rounded">
