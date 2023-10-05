@@ -6,6 +6,7 @@ import { findConflict, timeToNum } from './utilities/findConflict';
 import { useFormData } from './utilities/validateForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, useParams, Link, useNavigate, NavLink } from "react-router-dom";
+import { useProfile } from './utilities/profile';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Banner = (props) => (
@@ -29,13 +30,14 @@ const displayConflict = (selected, courses, id, course) => {
 
 const CourseList = (props) => {
   const [user] = useAuthState();
+  const isAdmin = useProfile()[0].isAdmin;
   return (
     <div className="course-list justify-content-center">
       {props.courses.map((course, id) => course.term != props.termSelection ? null : (
         <div className="card m-1 p-2" style={displayConflict(props.selected, props.courses, id, course)} onClick={() => boolConflict(props.selected, props.courses, course, id) ? null : props.toggleSelected(id)}>
           <p><h5>{course.term}</h5> <strong>CS {course.number}</strong>: {course.title}</p>
           <div className="card-footer mt-auto"><p><small><em>{course.meets}</em></small></p>
-            {user ? <Link to={{ pathname: `/courseform/${id}`, state: { course } }}> EDIT </Link> : null }</div> 
+            {isAdmin ? <Link to={{ pathname: `/courseform/${id}`, state: { course } }}> EDIT </Link> : null }</div> 
         </div>))}
     </div>
   )
@@ -196,15 +198,8 @@ const AuthButton = () => {
   return user ? <SignOutButton /> : <SignInButton />;
 };
 
-const activation = ({isActive}) => isActive ? 'active' : 'inactive';
 
-const Navigation = () => (
-  <nav className="d-flex">
-    <NavLink to="/" className={activation} end>Posts</NavLink>
-    <NavLink to="/users" className={activation} end>Users</NavLink>
-    <AuthButton />
-  </nav>
-);
+
 
 const queryClient = new QueryClient();
 
