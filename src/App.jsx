@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import './App.css';
-import { useJsonQuery } from './utilities/fetch';
-import { useDbData, useDbUpdate } from './utilities/firebase';
+// import { useJsonQuery } from './utilities/fetch';
+import { useDbData, useDbUpdate, signInWithGoogle, signOut, useAuthState } from './utilities/firebase';
 import { findConflict, timeToNum } from './utilities/findConflict';
 import { useFormData } from './utilities/validateForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, useParams, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, Link, useNavigate, NavLink } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Banner = (props) => (
@@ -28,13 +28,14 @@ const displayConflict = (selected, courses, id, course) => {
 
 
 const CourseList = (props) => {
+  const [user] = useAuthState();
   return (
     <div className="course-list justify-content-center">
       {props.courses.map((course, id) => course.term != props.termSelection ? null : (
         <div className="card m-1 p-2" style={displayConflict(props.selected, props.courses, id, course)} onClick={() => boolConflict(props.selected, props.courses, course, id) ? null : props.toggleSelected(id)}>
           <p><h5>{course.term}</h5> <strong>CS {course.number}</strong>: {course.title}</p>
           <div className="card-footer mt-auto"><p><small><em>{course.meets}</em></small></p>
-            <Link to={{ pathname: `/courseform/${id}`, state: { course } }}> EDIT </Link> </div>
+            {user ? <Link to={{ pathname: `/courseform/${id}`, state: { course } }}> EDIT </Link> : null }</div> 
         </div>))}
     </div>
   )
@@ -182,6 +183,29 @@ const Router = (props) => {
   </div>)
 }
 
+const SignInButton = () => (
+  <button className="ms-auto btn btn-dark" onClick={signInWithGoogle}>Sign in</button>
+);
+
+const SignOutButton = () => (
+  <button className="ms-auto btn btn-dark" onClick={signOut}>Sign out</button>
+);
+
+const AuthButton = () => {
+  const [user] = useAuthState();
+  return user ? <SignOutButton /> : <SignInButton />;
+};
+
+const activation = ({isActive}) => isActive ? 'active' : 'inactive';
+
+const Navigation = () => (
+  <nav className="d-flex">
+    <NavLink to="/" className={activation} end>Posts</NavLink>
+    <NavLink to="/users" className={activation} end>Users</NavLink>
+    <AuthButton />
+  </nav>
+);
+
 const queryClient = new QueryClient();
 
 
@@ -199,6 +223,9 @@ const App = () => {
   );
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthButton />
+      {/* <SignInButton /> */}
+      {/* <SignOutButton /> */}
       <div className="App container">
         <Router open={open} openModal={openModal} closeModal={closeModal} selected={selected} toggleSelected={toggleSelected} selection={selection} setSelection={setSelection} />
       </div>
