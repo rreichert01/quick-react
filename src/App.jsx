@@ -10,7 +10,7 @@ import { useProfile } from './utilities/profile';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Banner = (props) => (
-  <header>
+  <header data-cy="course">
     <h1>{props.name}</h1>
   </header>
 );
