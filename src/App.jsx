@@ -34,8 +34,8 @@ const CourseList = (props) => {
   return (
     <div className="course-list justify-content-center">
       {props.courses.map((course, id) => course.term != props.termSelection ? null : (
-        <div className="card m-1 p-2" style={displayConflict(props.selected, props.courses, id, course)} onClick={() => boolConflict(props.selected, props.courses, course, id) ? null : props.toggleSelected(id)}>
-          <p><h5>{course.term}</h5> <strong>CS {course.number}</strong>: {course.title}</p>
+        <div data-cy="course" key={id} className="card m-1 p-2" style={displayConflict(props.selected, props.courses, id, course)} onClick={() => boolConflict(props.selected, props.courses, course, id) ? null : props.toggleSelected(id)}>
+          <h5>{course.term}</h5> <p><strong>CS {course.number}</strong>: {course.title}</p>
           <div className="card-footer mt-auto"><p><small><em>{course.meets}</em></small></p>
             {isAdmin ? <Link to={{ pathname: `/courseform/${id}`, state: { course } }}> EDIT </Link> : null }</div> 
         </div>))}
@@ -44,12 +44,12 @@ const CourseList = (props) => {
 }
 
 const TermButton = (props) => {
-  return (<div className='col-4'>
-    <input type="radio" id={props.term} className="btn-check" checked={props.term === props.selection} autoComplete="off"
-      onChange={() => props.setSelection(props.term)} />
-    <label className="btn btn-success mb-1 p-2" htmlFor={props.term}>
+  return (<div className='col-4' key={props.term} data-cy={props.term}>
+        <label className="btn btn-success mb-1 p-2" htmlFor={props.term}>
       {props.term}
     </label>
+    <input type="radio" id={props.term} key={props.term}  className="btn-check" style={{"pointerEvents": "auto"}} checked={props.term === props.selection} autoComplete="off"
+      onChange={() => props.setSelection(props.term)} />
   </div>)
 };
 
