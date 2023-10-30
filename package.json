@@ -8,7 +8,10 @@
     "serve": "vite preview",
     "test": "vitest --ui",
     "coverage": "vitest run --coverage",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "em:start": "firebase emulators:start --import=./saved-data --export-on-exit",
+    "em:exec": "firebase emulators:exec --import=./saved-data 'npm start'",
+    "em:execui": "firebase emulators:exec --ui --import=./saved-data 'npm start'"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.35.3",

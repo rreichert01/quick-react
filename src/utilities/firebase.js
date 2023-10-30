@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { initializeApp } from "firebase/app";
-import { getDatabase, onValue, ref, update } from 'firebase/database';
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { connectDatabaseEmulator ,getDatabase, onValue, ref, update } from 'firebase/database';
+import { connectAuthEmulator, getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, signInWithCredential  } from 'firebase/auth';
+
+let emulate = !window.EMULATION && !import.meta.env.MODE || import.meta.env.MODE === "development"
 
 const firebaseConfig = {
     apiKey: "AIzaSyAGYUmIzhUGFJKam5kL0uo0wyBLbG9fIxg",
@@ -11,13 +13,27 @@ const firebaseConfig = {
     messagingSenderId: "782328531548",
     appId: "1:782328531548:web:0cc245b29f3ee662a47499",
     measurementId: "G-ECY5FM64LL",
-    databaseURL: "https://quick-rea-default-rtdb.firebaseio.com"
+    databaseURL: emulate ? "https://quick-rea.firebaseio.com": "https://quick-rea-default-rtdb.firebaseio.com"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // Initialize Realtime Database and get a reference to the service
+const auth = getAuth(app);
 const database = getDatabase(app);
+
+if (!window.EMULATION && !import.meta.env.MODE || import.meta.env.MODE === "development") {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectDatabaseEmulator(database, "127.0.0.1", 9000);
+  
+
+  signInWithCredential(auth, GoogleAuthProvider.credential(
+    '{"sub": "qEvli4msW0eDz5mSVO6j3W7i8w1k", "email": "tester@gmail.com", "displayName":"Test User", "email_verified": true}'
+  ));
+  
+  // set flag to avoid connecting twice, e.g., because of an editor hot-reload
+  window.EMULATION = true;
+}
 
 export const useDbData = (path) => {
   const [data, setData] = useState();
